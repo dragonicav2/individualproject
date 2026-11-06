@@ -1,0 +1,12 @@
+services:
+  mediamtx:
+    image: bluenviron/mediamtx:1
+    container_name: tournament-mediamtx
+    restart: unless-stopped
+    ports:
+      - "1935:1935/tcp" # OBS RTMP ingest
+      - "8888:8888/tcp" # HLS
+      - "8889:8889/tcp" # browser WebRTC playback page
+      - "8189:8189/udp" # WebRTC media
+    environment:
+      MTX_WEBRTCADDITIONALHOSTS: ${CS2_SERVER_HOST}

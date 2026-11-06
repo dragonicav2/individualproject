@@ -1,0 +1,40 @@
+/vendor/
+/node_modules/
+/public/build/
+/.env
+/.env.*
+!/.env.example
+/infra/guacamole/.env
+/privatekey/
+*.ppk
+*.pem
+
+# Local databases, generated caches, and logs
+/database/*.sqlite
+/database/*.sqlite-*
+/storage/app/private/
+/storage/app/public/
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/testing/*
+/.cache/
+/**/.cache/
+/mlbb-ocr/.venv/
+/mlbb-ocr/venv/
+/mlbb-ocr/__pycache__/
+*.py[cod]
+
+# Local-only documentation and generated report material
+/docs/
+/work/
+/outputs/
+/Tournament_Hosting_System_Stakeholder_Test_Report.docx
+/_build_integration_template.py
+/_build_security_template.py
+
+# Operating-system files
+Thumbs.db
+Desktop.ini
+.DS_Store

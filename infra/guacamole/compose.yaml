@@ -1,0 +1,56 @@
+name: tournament-guacamole
+
+services:
+  schema-init:
+    image: guacamole/guacamole:1.6.0
+    user: "0:0"
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["cp -a /opt/guacamole/extensions/guacamole-auth-jdbc/postgresql/schema/. /initdb/"]
+    volumes:
+      - guacamole-initdb:/initdb
+    restart: "no"
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: guacamole_db
+      POSTGRES_USER: guacamole_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in infra/guacamole/.env}
+    volumes:
+      - guacamole-postgres-data:/var/lib/postgresql/data
+      - guacamole-initdb:/docker-entrypoint-initdb.d:ro
+    depends_on:
+      schema-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U guacamole_user -d guacamole_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  guacd:
+    image: guacamole/guacd:1.6.0
+    restart: unless-stopped
+
+  guacamole:
+    image: guacamole/guacamole:1.6.0
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      guacd:
+        condition: service_started
+    environment:
+      GUACD_HOSTNAME: guacd
+      POSTGRESQL_ENABLED: "true"
+      POSTGRESQL_HOSTNAME: postgres
+      POSTGRESQL_DATABASE: guacamole_db
+      POSTGRESQL_USERNAME: guacamole_user
+      POSTGRESQL_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in infra/guacamole/.env}
+    ports:
+      - "127.0.0.1:8080:8080"
+
+volumes:
+  guacamole-initdb:
+  guacamole-postgres-data:
